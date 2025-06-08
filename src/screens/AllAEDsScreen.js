@@ -172,9 +172,10 @@ const AllAEDsScreen = ({ navigation }) => {
 
       <FAB
         style={styles.fab}
-        icon="plus"
+        icon={() => <Title style={{ color: 'white', fontSize: 18 }}>+</Title>}
         onPress={() => navigation.navigate('EditAED', { mode: 'add' })}
         label="Add AED"
+        uppercase={false}
       />
     </View>
   );
@@ -278,10 +279,18 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
+    right: 16,
+    bottom: 20,
     backgroundColor: '#1976D2',
+    borderRadius: 16,
+    elevation: 8,
+    shadowColor: '#1976D2',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
 });
 
