@@ -1,97 +1,160 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# CUEMS AED Inventory & Management
 
-# Getting Started
+A React Native mobile application prototype for the University of Colorado Boulder Emergency Medical Services (CUEMS) to manage a campus-wide inventory of Automated External Defibrillators (AEDs).
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Project Overview
 
-## Step 1: Start Metro
+This application serves as a high-fidelity prototype to demonstrate the value and technical feasibility of replacing an outdated manual spreadsheet system for tracking AEDs across the CU Boulder campus. The primary goal is to secure Azure AD API permissions to connect to the university's Microsoft 365 backend.
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+### Key Features
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- **Dashboard Overview**: Summary statistics and quick navigation
+- **AED Inventory Management**: Complete CRUD operations for AED records
+- **Service Tracking**: Automated detection of expired components and service requirements
+- **QR Code Scanning**: Simulated camera scanning for quick AED identification
+- **Monthly Check Logging**: Digital forms for routine AED inspections
+- **Route Optimization**: Google Maps integration for efficient service routes
+- **Responsive Design**: Works on phones and tablets
 
-```sh
-# Using npm
-npm start
+## Technical Stack
 
-# OR using Yarn
-yarn start
+- **Frontend**: React Native 0.79.3
+- **UI Library**: React Native Paper 5.14.5
+- **Navigation**: React Navigation 7.x
+- **Mock Backend**: Local JavaScript data files simulating SharePoint Lists
+- **Maps Integration**: Google Maps via React Native Linking
+
+## Project Structure
+
+```
+src/
+├── api/
+│   └── SharePointAPI.js         # Mock API service
+├── data/
+│   ├── AED_Inventory.js         # Sample AED inventory data
+│   └── AED_Submission_Log.js    # Sample check log data
+├── navigation/
+│   └── AppNavigator.js          # Main navigation setup
+└── screens/
+    ├── HomeScreen.js            # Dashboard with stats and navigation
+    ├── AllAEDsScreen.js         # Searchable list of all AEDs
+    ├── AEDDetailScreen.js       # Detailed view of single AED
+    ├── EditAEDScreen.js         # Add/edit AED form
+    ├── ServiceListScreen.js     # List of AEDs requiring service
+    ├── ScanScreen.js            # QR code scanning simulation
+    └── LogCheckScreen.js        # Monthly check logging form
 ```
 
-## Step 2: Build and run your app
+## Data Schema
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+### AED_Inventory
+- Basic information (ID, building, location)
+- GPS coordinates for mapping
+- Device details (manufacturer, model, serial)
+- Battery information (install date, lifespan, expiry)
+- Pads information (install date, type, lifespan, expiry)
+- Monthly check history
 
-### Android
+### AED_Submission_Log
+- Check timestamps and personnel
+- Action summaries and notes
+- Links to specific AED records
 
-```sh
-# Using npm
-npm run android
+## Setup Instructions
 
-# OR using Yarn
-yarn android
-```
+### Prerequisites
 
-### iOS
+- Node.js >= 18
+- React Native development environment
+- Android Studio (for Android development)
+- Xcode (for iOS development on macOS)
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+### Installation
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd CUEMSAEDInventory
+   ```
 
-```sh
-bundle install
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Then, and every time you update your native dependencies, run:
+3. **iOS Setup** (macOS only)
+   ```bash
+   bundle install
+   bundle exec pod install
+   ```
 
-```sh
-bundle exec pod install
-```
+4. **Start Metro server**
+   ```bash
+   npm start
+   ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+5. **Run the application**
+   
+   For Android:
+   ```bash
+   npm run android
+   ```
+   
+   For iOS:
+   ```bash
+   npm run ios
+   ```
 
-```sh
-# Using npm
-npm run ios
+## Key Functionality Demonstrations
 
-# OR using Yarn
-yarn ios
-```
+### 1. Service Detection Logic
+The app automatically identifies AEDs requiring service by checking:
+- Battery expiry dates
+- Pads expiry dates  
+- Overall status flags
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+### 2. Route Optimization
+The "Generate Optimized Service Route" feature:
+- Collects GPS coordinates of all service-required AEDs
+- Creates a Google Maps URL with waypoints
+- Opens external maps app for navigation
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+### 3. QR Code Simulation
+The scanning screen includes simulation buttons to demonstrate:
+- Successful AED identification and navigation to details
+- Invalid QR code error handling
+- Integration with the inventory system
 
-## Step 3: Modify your app
+### 4. Data Validation
+Forms include comprehensive validation for:
+- Required fields
+- GPS coordinate ranges
+- Date formats
+- Numeric constraints
 
-Now that you have successfully run the app, let's make changes!
+## Future Integration Plans
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+When Azure AD permissions are approved, the mock API service will be replaced with:
+- Microsoft Graph API calls
+- SharePoint List integration
+- Azure Active Directory authentication
+- Real-time data synchronization
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+## Development Notes
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+- All components use React Native Paper for consistent Material Design
+- Navigation is handled by React Navigation Stack Navigator
+- State management uses React hooks and local state
+- Forms include comprehensive validation and error handling
+- The app is designed to be responsive across phone and tablet sizes
 
-## Congratulations! :tada:
+## Testing
 
-You've successfully run and modified your React Native App. :partying_face:
+The app includes realistic test data representing:
+- 2 sample AEDs with different service statuses
+- Historical check logs
+- Various expiry scenarios for demonstration
 
-### Now what?
+## License
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+This project is intended for University of Colorado Boulder internal use as part of the CUEMS AED management system proposal.

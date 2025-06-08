@@ -1,0 +1,62 @@
+export const AED_INVENTORY = [
+  {
+    id: 1, // Internal ID for React keys
+    Title: "CU-AED-001",
+    BuildingName: "Engineering Center",
+    BuildingCode: "ENGR",
+    Floor: "1",
+    SpecificLocationDescription: "Main lobby, west wall, next to information desk",
+    Latitude: 40.00761,
+    Longitude: -105.26392,
+    PubliclyAccessible: true,
+    Manufacturer: "Philips",
+    Model: "HeartStart OnSite M5066A",
+    SerialNumber: "SN-PH-1001",
+    BatteryInstallDate: "2023-01-15T09:00:00Z",
+    BatteryLifespanMonths: 48,
+    CalculatedBatteryExpiryDate: "2027-01-15T09:00:00Z",
+    PadsInstallDate: "2023-01-15T09:00:00Z",
+    PadsType: "Adult",
+    PadsLifespanMonths: 24,
+    CalculatedPadsExpiryDate: "2025-01-15T09:00:00Z", // Expired as of June 2025
+    OverallStatus: "Operational", // Note: Data says operational, but pads are expired. App logic should flag this.
+    LastMonthlyCheckDate: "2025-05-01T09:00:00Z",
+    LastMonthlyCheckBy: "Derek Haase",
+    LastMonthlyCheckStatus: "Pass",
+    LastMonthlyCheckNotes: "Visual inspection OK. Green light flashing.",
+    PhotoOfLocation: "https://via.placeholder.com/150",
+    Notes: "Standard lobby unit.",
+    Created: "2023-01-15T08:00:00Z",
+    Modified: "2025-05-01T09:00:00Z"
+  },
+  {
+    id: 2,
+    Title: "CU-AED-002",
+    BuildingName: "Koelbel Building - Leeds School of Business",
+    BuildingCode: "KOBL",
+    Floor: "2",
+    SpecificLocationDescription: "Outside Dean's office, Room 205, mounted on pillar",
+    Latitude: 40.00990,
+    Longitude: -105.26215,
+    PubliclyAccessible: true,
+    Manufacturer: "Zoll",
+    Model: "AED Plus",
+    SerialNumber: "SN-ZL-2002",
+    BatteryInstallDate: "2020-06-01T09:00:00Z",
+    BatteryLifespanMonths: 48,
+    CalculatedBatteryExpiryDate: "2024-06-01T09:00:00Z", // Expired as of June 2025
+    PadsInstallDate: "2024-01-10T09:00:00Z",
+    PadsType: "Adult",
+    PadsLifespanMonths: 24,
+    CalculatedPadsExpiryDate: "2026-01-10T09:00:00Z",
+    OverallStatus: "Needs: Battery Service",
+    LastMonthlyCheckDate: "2025-05-15T09:00:00Z",
+    LastMonthlyCheckBy: "Derek Haase",
+    LastMonthlyCheckStatus: "Fail - Needs Attention",
+    LastMonthlyCheckNotes: "AED chirping, battery indicator red.",
+    PhotoOfLocation: "https://via.placeholder.com/150",
+    Notes: "High traffic area.",
+    Created: "2020-06-01T08:00:00Z",
+    Modified: "2025-05-15T09:00:00Z"
+  }
+]; 
