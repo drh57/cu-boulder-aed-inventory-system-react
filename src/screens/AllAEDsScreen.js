@@ -1,75 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, FlatList, Alert } from 'react-native';
-import { Searchbar, Card, Title, Paragraph, Chip, ActivityIndicator, FAB } from 'react-native-paper';
+import { 
+  View, 
+  FlatList, 
+  StyleSheet, 
+  TouchableOpacity,
+  Alert 
+} from 'react-native';
+import { 
+  Searchbar, 
+  Card, 
+  Title, 
+  Paragraph, 
+  Chip,
+  ActivityIndicator,
+  FAB,
+  Divider 
+} from 'react-native-paper';
 import { SharePointAPI } from '../api/SharePointAPI';
 import { useFocusEffect } from '@react-navigation/native';
-
-const AEDListItem = ({ item, onPress }) => {
-  const isExpired = () => {
-    const now = new Date();
-    const batteryExpiry = new Date(item.CalculatedBatteryExpiryDate);
-    const padsExpiry = new Date(item.CalculatedPadsExpiryDate);
-    return batteryExpiry < now || padsExpiry < now || item.OverallStatus.includes('Needs');
-  };
-
-  const getStatusColor = () => {
-    if (isExpired()) return '#F44336';
-    return '#4CAF50';
-  };
-
-  const getStatusText = () => {
-    const now = new Date();
-    const batteryExpiry = new Date(item.CalculatedBatteryExpiryDate);
-    const padsExpiry = new Date(item.CalculatedPadsExpiryDate);
-    
-    if (batteryExpiry < now && padsExpiry < now) return 'Battery & Pads Expired';
-    if (batteryExpiry < now) return 'Battery Expired';
-    if (padsExpiry < now) return 'Pads Expired';
-    if (item.OverallStatus.includes('Needs')) return item.OverallStatus;
-    return 'Operational';
-  };
-
-  return (
-    <Card style={styles.listItem} onPress={onPress}>
-      <Card.Content>
-        <View style={styles.listItemHeader}>
-          <Title style={styles.aedTitle}>{item.Title}</Title>
-          <Chip 
-            style={[styles.statusChip, { backgroundColor: getStatusColor() }]}
-            textStyle={{ color: 'white', fontSize: 10 }}
-          >
-            {getStatusText()}
-          </Chip>
-        </View>
-        
-        <Paragraph style={styles.buildingName}>{item.BuildingName}</Paragraph>
-        <Paragraph style={styles.location}>
-          Floor {item.Floor} - {item.SpecificLocationDescription}
-        </Paragraph>
-        <Paragraph style={styles.manufacturer}>
-          {item.Manufacturer} {item.Model}
-        </Paragraph>
-        
-        <View style={styles.lastCheckContainer}>
-          <Paragraph style={styles.lastCheck}>
-            Last Check: {new Date(item.LastMonthlyCheckDate).toLocaleDateString()} by {item.LastMonthlyCheckBy}
-          </Paragraph>
-          <Chip 
-            style={[styles.checkStatusChip, { 
-              backgroundColor: item.LastMonthlyCheckStatus === 'Pass' ? '#E8F5E8' : '#FFEBEE' 
-            }]}
-            textStyle={{ 
-              color: item.LastMonthlyCheckStatus === 'Pass' ? '#2E7D32' : '#C62828',
-              fontSize: 10 
-            }}
-          >
-            {item.LastMonthlyCheckStatus}
-          </Chip>
-        </View>
-      </Card.Content>
-    </Card>
-  );
-};
 
 const AllAEDsScreen = ({ navigation }) => {
   const [aeds, setAeds] = useState([]);
@@ -99,34 +47,102 @@ const AllAEDsScreen = ({ navigation }) => {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    if (query.trim() === '') {
+    if (query === '') {
       setFilteredAeds(aeds);
     } else {
       const filtered = aeds.filter(aed =>
         aed.Title.toLowerCase().includes(query.toLowerCase()) ||
         aed.BuildingName.toLowerCase().includes(query.toLowerCase()) ||
         aed.BuildingCode.toLowerCase().includes(query.toLowerCase()) ||
-        aed.SpecificLocationDescription.toLowerCase().includes(query.toLowerCase()) ||
-        aed.Manufacturer.toLowerCase().includes(query.toLowerCase()) ||
-        aed.Model.toLowerCase().includes(query.toLowerCase())
+        aed.SpecificLocationDescription.toLowerCase().includes(query.toLowerCase())
       );
       setFilteredAeds(filtered);
     }
   };
 
-  const navigateToDetail = (aed) => {
-    navigation.navigate('AEDDetail', { aedTitle: aed.Title });
+  const getStatusColor = (status) => {
+    if (status === 'Operational') {
+      return '#4CAF50';
+    } else if (status.includes('Needs')) {
+      return '#F44336';
+    } else {
+      return '#FF9800';
+    }
   };
 
-  const navigateToAdd = () => {
-    navigation.navigate('EditAED', { mode: 'add' });
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
+
+  const renderAedItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => navigation.navigate('AEDDetail', { aedTitle: item.Title })}
+    >
+      <Card style={[styles.aedCard, item.NeedsService && styles.serviceNeededCard]}>
+        <Card.Content>
+          <View style={styles.cardHeader}>
+            <Title style={styles.aedTitle}>{item.Title}</Title>
+            <Chip 
+              style={[styles.statusChip, { 
+                backgroundColor: getStatusColor(item.CalculatedStatus) 
+              }]}
+              textStyle={{ color: 'white', fontSize: 11 }}
+            >
+              {item.CalculatedStatus}
+            </Chip>
+          </View>
+          
+          <Paragraph style={styles.buildingInfo}>
+            {item.BuildingName} ({item.BuildingCode})
+          </Paragraph>
+          
+          <Paragraph style={styles.locationInfo}>
+            Floor {item.Floor} • {item.SpecificLocationDescription}
+          </Paragraph>
+
+          <View style={styles.expiryInfo}>
+            <View style={styles.expiryRow}>
+              <Paragraph style={styles.expiryLabel}>Battery:</Paragraph>
+              <Paragraph style={[
+                styles.expiryDate,
+                new Date(item.CalculatedBatteryExpiryDate) < new Date() && styles.expiredDate
+              ]}>
+                {formatDate(item.CalculatedBatteryExpiryDate)}
+              </Paragraph>
+            </View>
+            
+            <View style={styles.expiryRow}>
+              <Paragraph style={styles.expiryLabel}>Pads:</Paragraph>
+              <Paragraph style={[
+                styles.expiryDate,
+                new Date(item.CalculatedPadsExpiryDate) < new Date() && styles.expiredDate
+              ]}>
+                {formatDate(item.CalculatedPadsExpiryDate)}
+              </Paragraph>
+            </View>
+          </View>
+
+          {item.NeedsService && (
+            <View style={styles.serviceWarning}>
+              <Paragraph style={styles.serviceWarningText}>
+                ⚠️ Automated system detected this AED needs attention
+              </Paragraph>
+            </View>
+          )}
+        </Card.Content>
+      </Card>
+    </TouchableOpacity>
+  );
 
   if (loading) {
     return (
       <View style={[styles.container, styles.centerContent]}>
         <ActivityIndicator size="large" />
-        <Paragraph style={{ marginTop: 16 }}>Loading AEDs...</Paragraph>
+        <Paragraph style={{ marginTop: 16 }}>Loading AED inventory...</Paragraph>
       </View>
     );
   }
@@ -134,21 +150,22 @@ const AllAEDsScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Searchbar
-        placeholder="Search AEDs..."
+        placeholder="Search AEDs by title, building, or location..."
         onChangeText={handleSearch}
         value={searchQuery}
         style={styles.searchBar}
       />
       
+      <View style={styles.statsContainer}>
+        <Paragraph style={styles.statsText}>
+          {filteredAeds.length} AEDs found • {filteredAeds.filter(aed => aed.NeedsService).length} need service
+        </Paragraph>
+      </View>
+
       <FlatList
         data={filteredAeds}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <AEDListItem 
-            item={item} 
-            onPress={() => navigateToDetail(item)}
-          />
-        )}
+        renderItem={renderAedItem}
+        keyExtractor={(item) => item.Title}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />
@@ -156,7 +173,7 @@ const AllAEDsScreen = ({ navigation }) => {
       <FAB
         style={styles.fab}
         icon="plus"
-        onPress={navigateToAdd}
+        onPress={() => navigation.navigate('EditAED', { mode: 'add' })}
         label="Add AED"
       />
     </View>
@@ -173,19 +190,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   searchBar: {
-    marginHorizontal: 16,
-    marginVertical: 8,
+    margin: 16,
     elevation: 2,
+  },
+  statsContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  statsText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
   },
   listContainer: {
     padding: 16,
-    paddingBottom: 80, // Space for FAB
+    paddingBottom: 100,
   },
-  listItem: {
+  aedCard: {
     marginBottom: 12,
     elevation: 2,
   },
-  listItemHeader: {
+  serviceNeededCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#F44336',
+  },
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -195,40 +224,57 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     flex: 1,
-    marginRight: 8,
+    marginRight: 12,
   },
   statusChip: {
     elevation: 1,
   },
-  buildingName: {
+  buildingInfo: {
     fontSize: 16,
     fontWeight: '600',
     color: '#1976D2',
     marginBottom: 4,
   },
-  location: {
+  locationInfo: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 4,
+    marginBottom: 12,
   },
-  manufacturer: {
-    fontSize: 14,
-    color: '#333',
+  expiryInfo: {
+    backgroundColor: '#f8f9fa',
+    padding: 8,
+    borderRadius: 4,
     marginBottom: 8,
   },
-  lastCheckContainer: {
+  expiryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    marginBottom: 4,
   },
-  lastCheck: {
+  expiryLabel: {
     fontSize: 12,
-    color: '#777',
-    flex: 1,
-    marginRight: 8,
+    color: '#666',
+    fontWeight: '500',
   },
-  checkStatusChip: {
-    elevation: 1,
+  expiryDate: {
+    fontSize: 12,
+    color: '#333',
+  },
+  expiredDate: {
+    color: '#F44336',
+    fontWeight: 'bold',
+  },
+  serviceWarning: {
+    backgroundColor: '#FFEBEE',
+    padding: 8,
+    borderRadius: 4,
+    borderLeftWidth: 3,
+    borderLeftColor: '#F44336',
+  },
+  serviceWarningText: {
+    fontSize: 12,
+    color: '#C62828',
+    fontWeight: '500',
   },
   fab: {
     position: 'absolute',

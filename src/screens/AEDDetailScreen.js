@@ -60,13 +60,6 @@ const AEDDetailScreen = ({ route, navigation }) => {
     return new Date(expiryDate) < new Date();
   };
 
-  const needsService = () => {
-    if (!aed) return false;
-    return isExpired(aed.CalculatedBatteryExpiryDate) || 
-           isExpired(aed.CalculatedPadsExpiryDate) || 
-           aed.OverallStatus.includes('Needs');
-  };
-
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -114,11 +107,11 @@ const AEDDetailScreen = ({ route, navigation }) => {
             <Title style={styles.aedTitle}>{aed.Title}</Title>
             <Chip 
               style={[styles.statusChip, { 
-                backgroundColor: needsService() ? '#F44336' : '#4CAF50' 
+                backgroundColor: aed.NeedsService ? '#F44336' : '#4CAF50' 
               }]}
               textStyle={{ color: 'white', fontWeight: 'bold' }}
             >
-              {needsService() ? 'Service Required' : 'Operational'}
+              {aed.CalculatedStatus}
             </Chip>
           </View>
         </Card.Content>
@@ -153,8 +146,8 @@ const AEDDetailScreen = ({ route, navigation }) => {
           <DetailRow label="Manufacturer" value={aed.Manufacturer} />
           <DetailRow label="Model" value={aed.Model} />
           <DetailRow label="Serial Number" value={aed.SerialNumber} />
-          <DetailRow label="Overall Status" value={aed.OverallStatus} 
-                    isWarning={aed.OverallStatus.includes('Needs')} />
+          <DetailRow label="Current Status" value={aed.CalculatedStatus} 
+                    isWarning={aed.NeedsService} />
         </Card.Content>
       </Card>
 
@@ -202,9 +195,26 @@ const AEDDetailScreen = ({ route, navigation }) => {
           <DetailRow 
             label="Status" 
             value={aed.LastMonthlyCheckStatus}
-            isWarning={aed.LastMonthlyCheckStatus.includes('Fail')}
+            isWarning={aed.LastMonthlyCheckStatus && aed.LastMonthlyCheckStatus.includes('Fail')}
           />
           <DetailRow label="Notes" value={aed.LastMonthlyCheckNotes} />
+        </Card.Content>
+      </Card>
+
+      {/* Status Summary */}
+      <Card style={[styles.sectionCard, aed.NeedsService && styles.serviceNeededCard]}>
+        <Card.Content>
+          <Title style={[styles.sectionTitle, aed.NeedsService && styles.serviceNeededTitle]}>
+            Automated Status Assessment
+          </Title>
+          <DetailRow label="Overall Status" value={aed.CalculatedStatus} 
+                    isWarning={aed.NeedsService} />
+          <Paragraph style={styles.statusExplanation}>
+            {aed.NeedsService 
+              ? 'This AED requires attention. Status automatically calculated based on expiry dates and check results.'
+              : 'This AED is operational. All components are within their service life and latest check passed.'
+            }
+          </Paragraph>
         </Card.Content>
       </Card>
 
@@ -236,6 +246,35 @@ const AEDDetailScreen = ({ route, navigation }) => {
           contentStyle={styles.buttonContent}
         >
           Log Monthly Check
+        </Button>
+
+        <Button
+          mode="contained"
+          onPress={() => {
+            const qrData = JSON.stringify({
+              aedId: aed.Title,
+              location: `${aed.BuildingName} - ${aed.SpecificLocationDescription}`,
+              type: 'CUEMS_AED'
+            });
+            Alert.alert(
+              'QR Code Data',
+              `QR Code content for ${aed.Title}:\n\n${qrData}\n\nThis would generate a scannable QR code for printing and attaching to the AED.`,
+              [
+                { text: 'OK' },
+                { 
+                  text: 'Generate Label', 
+                  onPress: () => {
+                    // In real app, this would generate a printable QR code label
+                    Alert.alert('Label Generation', 'QR code label sent to printer (simulation)');
+                  }
+                }
+              ]
+            );
+          }}
+          style={[styles.actionButton, { backgroundColor: '#7B1FA2' }]}
+          contentStyle={styles.buttonContent}
+        >
+          Generate QR Label
         </Button>
       </Surface>
     </ScrollView>
@@ -282,6 +321,11 @@ const styles = StyleSheet.create({
     borderLeftColor: '#F44336',
     backgroundColor: '#FFEBEE',
   },
+  serviceNeededCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#FF9800',
+    backgroundColor: '#FFF3E0',
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -290,6 +334,9 @@ const styles = StyleSheet.create({
   },
   expiredTitle: {
     color: '#C62828',
+  },
+  serviceNeededTitle: {
+    color: '#F57C00',
   },
   detailRow: {
     flexDirection: 'row',
@@ -315,6 +362,12 @@ const styles = StyleSheet.create({
   warningText: {
     color: '#F57C00',
     fontWeight: '600',
+  },
+  statusExplanation: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 8,
+    fontStyle: 'italic',
   },
   mapButton: {
     marginTop: 8,
