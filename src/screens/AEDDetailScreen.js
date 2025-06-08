@@ -77,8 +77,7 @@ const AEDDetailScreen = ({ route, navigation }) => {
   };
 
   const handleViewOnMap = () => {
-    const url = `https://www.google.com/maps?q=${aed.Latitude},${aed.Longitude}`;
-    Linking.openURL(url);
+    navigation.navigate('MapView', { aed });
   };
 
   if (loading) {

@@ -11,6 +11,7 @@ import EditAEDScreen from '../screens/EditAEDScreen';
 import ServiceListScreen from '../screens/ServiceListScreen';
 import ScanScreen from '../screens/ScanScreen';
 import LogCheckScreen from '../screens/LogCheckScreen';
+import SimpleMapScreen from '../screens/SimpleMapScreen';
 
 const Stack = createStackNavigator();
 
@@ -97,6 +98,14 @@ const AppNavigator = () => {
             component={LogCheckScreen}
             options={({ route }) => ({
               title: `Log Check - ${route.params?.aedTitle || 'AED'}`,
+            })}
+          />
+          
+          <Stack.Screen 
+            name="MapView" 
+            component={SimpleMapScreen}
+            options={({ route }) => ({
+              title: `${route.params?.aed?.Title || 'AED'} Location`,
             })}
           />
         </Stack.Navigator>
